@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Aggregation.V1.xml">
+        <edmx:Include Alias="Aggregation" Namespace="Org.OData.Aggregation.V1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Analytics.xml">
+        <edmx:Include Alias="Analytics" Namespace="com.sap.vocabularies.Analytics.v1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Common.xml">
+        <edmx:Include Alias="Common" Namespace="com.sap.vocabularies.Common.v1"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+        <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema Namespace="MaterialAnalysis" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+            <EntityContainer Name="EntityContainer">
+                <EntitySet Name="Orders" EntityType="MaterialAnalysis.Orders"/>
+            </EntityContainer>
+            <EntityType Name="Orders">
+                <Key>
+                    <PropertyRef Name="purchaseOrder"/>
+                </Key>
+                <Property Name="purchaseOrder" Type="Edm.String" MaxLength="10" Nullable="false"/>
+                <Property Name="supplier" Type="Edm.String" MaxLength="10"/>
+                <Property Name="supplierName" Type="Edm.String" MaxLength="50"/>
+                <Property Name="purchaseOrderItem" Type="Edm.String" MaxLength="5"/>
+                <Property Name="material" Type="Edm.String" MaxLength="10"/>
+                <Property Name="materialDescription" Type="Edm.String" MaxLength="40"/>
+                <Property Name="orderQuantity" Type="Edm.Decimal" Scale="3" Precision="13"/>
+                <Property Name="purchaseOrderQuantityUnit" Type="Edm.String" MaxLength="3"/>
+            </EntityType>
+            <Annotations Target="MaterialAnalysis.Orders">
+                <Annotation Term="Aggregation.ApplySupported">
+                    <Record Type="Aggregation.ApplySupportedType">
+                        <PropertyValue Property="Transformations">
+                            <Collection>
+                                <String>aggregate</String>
+                                <String>topcount</String>
+                                <String>bottomcount</String>
+                                <String>identity</String>
+                                <String>concat</String>
+                                <String>groupby</String>
+                                <String>filter</String>
+                                <String>expand</String>
+                                <String>search</String>
+                            </Collection>
+                        </PropertyValue>
+                        <PropertyValue Property="GroupableProperties">
+                            <Collection>
+                                <PropertyPath>purchaseOrder</PropertyPath>
+                                <PropertyPath>supplier</PropertyPath>
+                                <PropertyPath>material</PropertyPath>
+                                <PropertyPath>orderQuantity</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                        <PropertyValue Property="AggregatableProperties">
+                            <Collection>
+                                <Record Type="Aggregation.AggregatablePropertyType">
+                                    <PropertyValue Property="Property" PropertyPath="orderQuantity"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Analytics.AggregatedProperty" Qualifier="totalQuantity">
+                    <Record Type="Analytics.AggregatedPropertyType">
+                        <PropertyValue Property="AggregatableProperty" PropertyPath="orderQuantity"/>
+                        <PropertyValue Property="AggregationMethod" String="sum"/>
+                        <PropertyValue Property="Name" String="totalQuantity"/>
+                        <Annotation Term="Common.Label" String="Total Quantity"/>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="MaterialAnalysis.EntityContainer/Orders">
+                <Annotation Term="Aggregation.ApplySupported">
+                    <Record Type="Aggregation.ApplySupportedType">
+                        <PropertyValue Property="Transformations">
+                            <Collection>
+                                <String>aggregate</String>
+                                <String>topcount</String>
+                                <String>bottomcount</String>
+                                <String>identity</String>
+                                <String>concat</String>
+                                <String>groupby</String>
+                                <String>filter</String>
+                                <String>expand</String>
+                                <String>search</String>
+                            </Collection>
+                        </PropertyValue>
+                        <PropertyValue Property="GroupableProperties">
+                            <Collection>
+                                <PropertyPath>purchaseOrder</PropertyPath>
+                                <PropertyPath>supplier</PropertyPath>
+                                <PropertyPath>material</PropertyPath>
+                                <PropertyPath>orderQuantity</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                        <PropertyValue Property="AggregatableProperties">
+                            <Collection>
+                                <Record Type="Aggregation.AggregatablePropertyType">
+                                    <PropertyValue Property="Property" PropertyPath="orderQuantity"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

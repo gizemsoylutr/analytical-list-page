@@ -1,40 +1,87 @@
-_schema-version: '3.1'
+_schema-version: "3.1"
 ID: analytical-list-page
+description: A simple CAP project.
 version: 1.0.0
-description: "A simple CAP project."
+modules:
+- name: analytical-list-page-srv
+  type: nodejs
+  path: gen/srv
+  requires:
+  - name: analytical-list-page-db
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: nodejs_buildpack
+  build-parameters:
+    builder: npm
+- name: analytical-list-page-db-deployer
+  type: hdb
+  path: gen/db
+  requires:
+  - name: analytical-list-page-db
+  parameters:
+    buildpack: nodejs_buildpack
+- name: analytical-list-page-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: analytical-list-page-repo-host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - alpui.zip
+      name: alpui
+      target-path: resources/
+- name: alpui
+  type: html5
+  path: app/alp-ui
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: analytical-list-page-db
+  type: com.sap.xs.hdi-container
+  parameters:
+    service: hana
+    service-plan: hdi-shared
+- name: analytical-list-page-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: analytical-list-page-html5-srv
+    service-plan: app-host
+- name: analytical-list-page-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: false
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: analytical-list-page-destination-service
+    service-plan: lite
 parameters:
+  deploy_mode: html5-repo
   enable-parallel-deployments: true
 build-parameters:
   before-all:
-    - builder: custom
-      commands:
-        - npx cds build --production
-modules:
-  - name: analytical-list-page-srv
-    type: nodejs
-    path: gen/srv
-    parameters:
-      buildpack: nodejs_buildpack
-    build-parameters:
-      builder: npm
-    provides:
-      - name: srv-api # required by consumers of CAP services (e.g. approuter)
-        properties:
-          srv-url: ${default-url}
-    requires:
-      - name: analytical-list-page-db
-
-  - name: analytical-list-page-db-deployer
-    type: hdb
-    path: gen/db
-    parameters:
-      buildpack: nodejs_buildpack
-    requires:
-      - name: analytical-list-page-db
-
-resources:
-  - name: analytical-list-page-db
-    type: com.sap.xs.hdi-container
-    parameters:
-      service: hana
-      service-plan: hdi-shared
+  - builder: custom
+    commands:
+    - npx cds build --production
